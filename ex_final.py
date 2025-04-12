@@ -73,3 +73,5 @@ canal = st.selectbox(
 
 graficar_registro_canal(record, nombre, canal)
 graficar_registro_canal(record, nombre, canal)
+
+# Máximo es muy sexy
