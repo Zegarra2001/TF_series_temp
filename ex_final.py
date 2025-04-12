@@ -68,7 +68,7 @@ nombre = st.selectbox(
 record = wfdb.rdrecord(nombre, pn_dir='ecg-arrhythmia/1.0.0/' + dir)
 canal = st.selectbox(
     'Canal',
-    (record.sig_name),
+    ('Todos' + record.sig_name),
 )
 
 graficar_registro_canal(record, nombre, canal)
