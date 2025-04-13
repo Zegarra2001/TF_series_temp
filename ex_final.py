@@ -68,5 +68,4 @@ canal = st.selectbox(
     (['Todos'] + record.sig_name),
 )
 
-graficar_registro_canal(record, nombre, canal)
-graficar_registro_canal(record, nombre, canal)
+graficar_registro(record, nombre, canal)
