@@ -27,9 +27,9 @@ def dibujar_cuadricula(ax, vmin=-2, vmax=2):
 
 # Función para graficar un canal
 def graficar_registro_canal(record, nombre, canal='I'):
-    signal, t = extraer_senal(record, canal, 10)
+    signal, t = extraer_senal(record, canal)
     fig, ax = plt.subplots(figsize=(24, 4))
-    dibujar_cuadricula(ax, 10)
+    dibujar_cuadricula(ax)
     ax.plot(t, signal, color='black', linewidth=1)
     ax.set_xlim([0, 10])
     ax.set_ylim([-2, 2])
