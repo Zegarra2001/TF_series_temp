@@ -4,52 +4,49 @@ import numpy as np
 import wfdb
 import matplotlib.pyplot as plt
 
-# Función para graficar canal de registro
-def graficar_registro_canal(record, nombre, canal = 'I'):
-
-    # Selección de canales
-    canales = {i:j for (j,i) in enumerate(record.sig_name)}
-
-    # Parámetros de configuración
+# Obtener la señal de un canal
+def extraer_senal(record, canal, duracion=10):
     fs = record.fs
-    signal = record.p_signal[:, canales[canal]]
-
-    # Duración del segmento a mostrar (en segundos)
-    duracion = 10
+    idx_canal = record.sig_name.index(canal)
+    signal = record.p_signal[:, idx_canal]
     n_muestras = int(fs * duracion)
-    signal = signal[:n_muestras]
-    t = np.linspace(0, duracion, n_muestras)
+    return signal[:n_muestras], np.linspace(0, duracion, n_muestras)
 
-    # Crear la figura con fondo estilo papel ECG
-    fig, ax = plt.subplots(figsize=(24, 4))  # Tamaño similar a papel ECG
-
-    # Dibujar cuadrícula fina (cada 1 mm = 0.04 s, 0.1 mV)
+# Dibujar cuadrícula de papel ECG
+def dibujar_cuadricula(ax, duracion, vmin=-2, vmax=2):
+    # Cuadrícula fina
     for x in np.arange(0, duracion, 0.04):
         ax.axvline(x=x, color='lightgrey', linewidth=0.5)
-    for y in np.arange(-2, 2, 0.1):
+    for y in np.arange(vmin, vmax, 0.1):
         ax.axhline(y=y, color='lightgrey', linewidth=0.5)
-
-    # Dibujar cuadrícula gruesa (cada 5 mm = 0.20 s, 0.5 mV)
+    # Cuadrícula gruesa
     for x in np.arange(0, duracion, 0.20):
         ax.axvline(x=x, color='grey', linewidth=1)
-    for y in np.arange(-2, 2, 0.5):
+    for y in np.arange(vmin, vmax, 0.5):
         ax.axhline(y=y, color='grey', linewidth=1)
 
-    # Trazar señal ECG
+# Función para graficar un canal
+def graficar_registro_canal(record, nombre, canal='I', duracion=10):
+    signal, t = extraer_senal(record, canal, duracion)
+    fig, ax = plt.subplots(figsize=(12, 4))
+    dibujar_cuadricula(ax, duracion)
     ax.plot(t, signal, color='black', linewidth=1)
-
-    # Etiquetas y formato
     ax.set_xlim([0, duracion])
-    ax.set_ylim([-2, 2])  # ajustar según amplitud de señal
+    ax.set_ylim([-2, 2])
     ax.set_xlabel('Tiempo (s)')
     ax.set_ylabel('Amplitud (mV)')
-    ax.set_title(f'ECG - Registro {nombre}')
-
-    # Quitar fondo blanco
+    ax.set_title(f'ECG - Registro {nombre} - Canal {canal}')
     ax.set_facecolor('#fffafa')
-
-    # Mostrar en Streamlit
     st.pyplot(fig)
+
+# Función para graficar un registro completo o solo un canal
+def graficar_registro(record, nombre, canal='Todos', duracion=10):
+    if canal != 'Todos':
+        graficar_registro_canal(record, nombre, canal, duracion)
+    else:
+        for canal_individual in record.sig_name:
+            graficar_registro_canal(record, nombre, canal_individual, duracion)
+
 
 st.title('Visualización y Análisis de Electrocardiograma')
 
