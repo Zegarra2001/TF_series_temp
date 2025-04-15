@@ -38,22 +38,28 @@ def graficar_registro_canal(record, nombre, canal='I'):
     ax.set_ylabel('Amplitud (mV)')
     ax.set_title(f'ECG - Registro {nombre} - Canal {canal}')
     ax.set_facecolor('#fffafa')
-    # st.pyplot(fig)
-    return fig
+    return fig, ax
 
 # Función para graficar un registro completo o solo un canal
 def graficar_registro(record, nombre, canal='Todos'):
     if canal != 'Todos':
-        fig = graficar_registro_canal(record, nombre, canal)
+        fig, ax = graficar_registro_canal(record, nombre, canal)
         st.pyplot(fig)
     else:
         for canal_individual in record.sig_name:
-            fig = graficar_registro_canal(record, nombre, canal_individual)
+            fig, ax = graficar_registro_canal(record, nombre, canal_individual)
             st.pyplot(fig) 
 
 #Función para graficar la señal junto con sus picos
 def graficar_picos(record, nombre, canal):
-    graficar_registro_canal(record, nombre, canal)
+    record_limpio = nk.ecg_clean(record, sampling_rate = 500)
+    _, picos = nk.ecg_peaks(record_limpio, sampling_rate = 500)
+    t = np.linspace(0, 10, len(record_limpio))
+    picos_scatt = np.array([(t[i], record_limpio[i]) 
+                            for i in picos['ECG_R_Peaks']]) # Para obtener picos
+    fig, ax = graficar_registro_canal(record, nombre, canal)
+    ax.scatter(picos_scatt[:, 0], picos_scatt[:, 1])
+    st.pyplot(fig)
 
 # Función para obtener frecuencia cardiaca
 def obtener_frecuenciacardiaca(signal):
@@ -93,3 +99,5 @@ if select_confirmada:
 
     frec_cardiaca = obtener_frecuenciacardiaca(sig_seleccionada)
     graficar_picos(sig_seleccionada, nombre, canal)
+
+    select_confirmada = False
