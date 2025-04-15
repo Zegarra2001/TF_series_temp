@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import wfdb
 import matplotlib.pyplot as plt
+import neurokit2 as nk
 
 # Obtener la señal de un canal
 def extraer_senal(record, canal):
@@ -53,7 +54,7 @@ st.title('Visualización y Análisis de Electrocardiograma')
 # Selección de registro
 dir = st.selectbox(
     'Seleccione una carpeta:',
-    (wfdb.get_record_list('ecg-arrhythmia/1.0.0/')),
+    (wfdb.get_record_list('ecg-arrhythmia/1.0.0/')), ## Descargar db: agregar botón
 )
 
 nombre = st.selectbox(
@@ -62,7 +63,7 @@ nombre = st.selectbox(
 )
 
 # Selección de canal
-record = wfdb.rdrecord(nombre, pn_dir='ecg-arrhythmia/1.0.0/' + dir)
+record = wfdb.rdrecord(nombre, pn_dir = 'ecg-arrhythmia/1.0.0/' + dir)
 canal = st.selectbox(
     'Canal',
     (['Todos'] + record.sig_name),
