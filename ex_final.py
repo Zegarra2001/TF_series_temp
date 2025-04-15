@@ -48,6 +48,14 @@ def graficar_registro(record, nombre, canal='Todos'):
         for canal_individual in record.sig_name:
             graficar_registro_canal(record, nombre, canal_individual)
 
+#Función para graficar la señal junto con sus picos
+def graficar_picos(record, nombre, canal):
+    graficar_registro_canal(record, nombre, canal)
+
+# Función para obtener frecuencia cardiaca
+def obtener_frecuenciacardiaca(signal):
+    fc = 0
+    return fc
 
 st.title('Visualización y Análisis de Electrocardiograma')
 
@@ -73,7 +81,12 @@ graficar_registro(record, nombre, canal)
 
 # Obtener rítmo cardiaco
 select_confirmada = False
-if all([not select_confirmada, canal != 'Todos']):
+if canal != 'Todos':
     select_confirmada = st.button('Calcular FC usando esta derivada', type = 'primary')
 
-st.write(select_confirmada)
+if select_confirmada:
+    idx_canal = record.sig_name.index(canal)
+    sig_seleccionada =  record.p_signal[:, idx_canal]
+
+    frec_cardiaca = obtener_frecuenciacardiaca(sig_seleccionada)
+    graficar_picos(sig_seleccionada, nombre, canal)
