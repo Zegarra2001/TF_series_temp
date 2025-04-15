@@ -75,3 +75,5 @@ graficar_registro(record, nombre, canal)
 select_confirmada = False
 if all([not select_confirmada, canal != 'Todos']):
     select_confirmada = st.button('Calcular FC usando esta derivada', type = 'primary')
+
+st.write(select_confirmada)
