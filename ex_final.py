@@ -38,15 +38,18 @@ def graficar_registro_canal(record, nombre, canal='I'):
     ax.set_ylabel('Amplitud (mV)')
     ax.set_title(f'ECG - Registro {nombre} - Canal {canal}')
     ax.set_facecolor('#fffafa')
-    st.pyplot(fig)
+    # st.pyplot(fig)
+    return fig
 
 # Función para graficar un registro completo o solo un canal
 def graficar_registro(record, nombre, canal='Todos'):
     if canal != 'Todos':
-        graficar_registro_canal(record, nombre, canal)
+        fig = graficar_registro_canal(record, nombre, canal)
+        st.pyplot(fig)
     else:
         for canal_individual in record.sig_name:
-            graficar_registro_canal(record, nombre, canal_individual)
+            fig = graficar_registro_canal(record, nombre, canal_individual)
+            st.pyplot(fig) 
 
 #Función para graficar la señal junto con sus picos
 def graficar_picos(record, nombre, canal):
