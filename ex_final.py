@@ -74,5 +74,5 @@ graficar_registro(record, nombre, canal)
 # Obtener rítmo cardiaco
 select_confirmada = False
 
-if all(not select_confirmada, canal != 'Todos'):
+if all([not select_confirmada, canal != 'Todos']):
     select_confirmada = st.button('Calcular FC usando esta derivada', type = 'primary')
