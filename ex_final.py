@@ -52,7 +52,9 @@ def graficar_registro(record, nombre, canal='Todos'):
 
 #Función para graficar la señal junto con sus picos
 def graficar_picos(record, nombre, canal):
-    record_limpio = nk.ecg_clean(record, sampling_rate = 500)
+    idx_canal = record.sig_name.index(canal)
+    sig_seleccionada =  record.p_signal[:, idx_canal]
+    record_limpio = nk.ecg_clean(sig_seleccionada, sampling_rate = 500)
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate = 500)
     t = np.linspace(0, 10, len(record_limpio))
     picos_scatt = np.array([(t[i], record_limpio[i]) 
@@ -94,10 +96,6 @@ if canal != 'Todos':
     select_confirmada = st.button('Calcular FC usando esta derivada', type = 'primary')
 
 if select_confirmada:
-    idx_canal = record.sig_name.index(canal)
-    sig_seleccionada =  record.p_signal[:, idx_canal]
-
-    frec_cardiaca = obtener_frecuenciacardiaca(sig_seleccionada)
-    graficar_picos(sig_seleccionada, nombre, canal)
-
+    graficar_picos(record, nombre, canal)
+    # frec_cardiaca = obtener_frecuenciacardiaca(record)
     select_confirmada = False
