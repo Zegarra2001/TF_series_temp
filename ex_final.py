@@ -63,11 +63,8 @@ def graficar_picos(picos, record, nombre, canal):
 
 # Función para obtener frecuencia cardiaca
 def obtener_frecuenciacardiaca(picos):
-    posiciones_pulsos = picos['ECG_R_Peaks']
-    intervalo_RR = (posiciones_pulsos[4] - posiciones_pulsos[3]) * (1/500)
-    fc = int(60/intervalo_RR)
-
-    return fc
+    fc_array = nk.ecg_rate(picos, sampling_rate=500)
+    return int(np.mean(fc_array))
 
 st.title('Visualización y Análisis de Electrocardiograma')
 
