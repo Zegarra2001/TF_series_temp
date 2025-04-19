@@ -58,7 +58,7 @@ def graficar_picos(picos, record, nombre, canal):
     picos_scatt = np.array([(t[i], sig_seleccionada[i]) 
                             for i in picos['ECG_R_Peaks']])
     fig, ax = graficar_registro_canal(record, nombre, canal)
-    ax.scatter(picos_scatt[:, 0], picos_scatt[:, 1], s=50)
+    ax.scatter(picos_scatt[:, 0], picos_scatt[:, 1], s=100)
     st.pyplot(fig)
 
 # Función para obtener frecuencia cardiaca
