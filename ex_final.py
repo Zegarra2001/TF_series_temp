@@ -92,17 +92,15 @@ canal = st.selectbox(
 graficar_registro(record, nombre, canal)
 
 # Obtener rítmo cardiaco
-select_confirmada = False
 if canal != 'Todos':
-    select_confirmada = st.button('Calcular FC usando esta derivada', type = 'primary')
-
-if select_confirmada:
-    idx_canal = record.sig_name.index(canal)
+    if st.button('Calcular FC usando esta derivada', type = 'primary'):
+        idx_canal = record.sig_name.index(canal)
     record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate = 500)
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate = 500) # Para obtener picos
-
+    
     graficar_picos(picos, record, nombre, canal)
     frec_cardiaca = obtener_frecuenciacardiaca(picos)
 
-    st.text(f'Frecuencia cardiaca conseguida del canal {canal}: ')
-    st.write(frec_cardiaca)
+    st.markdown(f'**Frecuencia cardíaca del canal {canal}:** {frec_cardiaca} lpm')
+    if frec_cardiaca < 60 or frec_cardiaca > 100:
+        st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
