@@ -62,8 +62,11 @@ def graficar_picos(picos, record, nombre, canal):
     st.pyplot(fig)
 
 # Función para obtener frecuencia cardiaca
-def obtener_frecuenciacardiaca(signal):
-    fc = 0
+def obtener_frecuenciacardiaca(picos):
+    posiciones_pulsos = picos['ECG_R_Peaks']
+    intervalo_RR = (posiciones_pulsos[4] - posiciones_pulsos[3]) * (1/500)
+    fc = int(1/intervalo_RR)
+
     return fc
 
 st.title('Visualización y Análisis de Electrocardiograma')
@@ -97,5 +100,8 @@ if select_confirmada:
     record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate = 500)
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate = 500) # Para obtener picos
     graficar_picos(picos, record, nombre, canal)
-    # frec_cardiaca = obtener_frecuenciacardiaca(record)
+    frec_cardiaca = obtener_frecuenciacardiaca(picos)
+
+    st.subheader(f'Frecuencia cardiaca conseguida del canal {canal}: ')
+    st.write(frec_cardiaca)
     select_confirmada = False
