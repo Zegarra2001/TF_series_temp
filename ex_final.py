@@ -59,7 +59,7 @@ def graficar_picos(record, nombre, canal):
     t = np.linspace(0, 10, len(record_limpio))
     picos_scatt = np.array([(t[i], sig_seleccionada[i]) 
                             for i in picos['ECG_R_Peaks']]) # Para obtener picos
-    fig, ax = graficar_registro_canal(record, nombre, canal)
+    fig, ax = graficar_registro_canal(record_limpio, nombre, canal)
     ax.scatter(picos_scatt[:, 0], picos_scatt[:, 1])
     st.pyplot(fig)
 
