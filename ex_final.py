@@ -65,7 +65,7 @@ def graficar_picos(picos, record, nombre, canal):
 def obtener_frecuenciacardiaca(picos):
     posiciones_pulsos = picos['ECG_R_Peaks']
     intervalo_RR = (posiciones_pulsos[4] - posiciones_pulsos[3]) * (1/500)
-    fc = int(1/intervalo_RR)
+    fc = int(60/intervalo_RR)
 
     return fc
 
