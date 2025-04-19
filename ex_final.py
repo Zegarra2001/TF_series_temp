@@ -57,7 +57,7 @@ def graficar_picos(record, nombre, canal):
     record_limpio = nk.ecg_clean(sig_seleccionada, sampling_rate = 500)
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate = 500)
     t = np.linspace(0, 10, len(record_limpio))
-    picos_scatt = np.array([(t[i], record_limpio[i]) 
+    picos_scatt = np.array([(t[i], sig_seleccionada[i]) 
                             for i in picos['ECG_R_Peaks']]) # Para obtener picos
     fig, ax = graficar_registro_canal(record, nombre, canal)
     ax.scatter(picos_scatt[:, 0], picos_scatt[:, 1])
@@ -97,4 +97,4 @@ if canal != 'Todos':
 if select_confirmada:
     graficar_picos(record, nombre, canal)
     # frec_cardiaca = obtener_frecuenciacardiaca(record)
-    # select_confirmada = False
+    select_confirmada = False
