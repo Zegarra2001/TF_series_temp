@@ -97,4 +97,4 @@ if canal != 'Todos':
 if select_confirmada:
     graficar_picos(record, nombre, canal)
     # frec_cardiaca = obtener_frecuenciacardiaca(record)
-    select_confirmada = False
+    # select_confirmada = False
