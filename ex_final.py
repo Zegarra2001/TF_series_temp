@@ -81,10 +81,15 @@ nombre = st.selectbox(
 
 # Selección de canal
 record = wfdb.rdrecord(nombre, pn_dir = 'ecg-arrhythmia/1.0.0/' + dir)
-canal = st.selectbox(
-    'Canal',
-    (['Todos'] + record.sig_name),
-)
+
+
+seleccion_canal_manual = st.checkbox('Seleccionar manualmente la derivada para calcular FC')
+canal = 'Todos'
+if seleccion_canal_manual:
+    canal = st.selectbox(
+        'Canal',
+        (['Todos'] + record.sig_name),
+    )
 
 graficar_registro(record, nombre, canal)
 
