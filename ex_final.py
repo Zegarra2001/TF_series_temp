@@ -94,32 +94,37 @@ if seleccion_canal_manual:
 graficar_registro(record, nombre, canal)
 
 # Obtener rítmo cardiaco
-if st.button('Calcular FC usando esta derivada', type = 'primary'):
-    canal_elegido = 'V4'
-    match True:
-        case _ if not seleccion_canal_manual:
+if st.button('Calcular FC usando esta derivada', type='primary'):
+    canal_elegido = 'V4'  # valor por defecto
+
+    # Si el usuario marcó la casilla para seleccionar manualmente la derivada
+    if seleccion_canal_manual:
+        if canal == 'Todos':
+            st.error('❌ Por favor, elija una derivada válida')
+        else:
+            canal_elegido = canal
             idx_canal = record.sig_name.index(canal_elegido)
-            record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate = 500)
-            _, picos = nk.ecg_peaks(record_limpio, sampling_rate = 500) # Para obtener picos
-            
+            record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate=500)
+            _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
+
             graficar_picos(picos, record, nombre, canal_elegido)
             frec_cardiaca = obtener_frecuenciacardiaca(picos)
 
             st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** {frec_cardiaca} lpm')
             if frec_cardiaca < 60 or frec_cardiaca > 100:
                 st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
-        case _ if seleccion_canal_manual and canal == 'Todos':
-            st.error('Por favor, elija una derivada válida')
-        case _ if seleccion_canal_manual and canal != 'Todos':
-            canal_elegido = canal
-            idx_canal = record.sig_name.index(canal_elegido)
-            record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate = 500)
-            _, picos = nk.ecg_peaks(record_limpio, sampling_rate = 500) # Para obtener picos
-            
-            graficar_picos(picos, record, nombre, canal_elegido)
-            frec_cardiaca = obtener_frecuenciacardiaca(picos)
-            
-            st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** {frec_cardiaca} lpm')
-            if frec_cardiaca < 60 or frec_cardiaca > 100:
-                st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
+
+    # Si no marca la casilla: usar el canal por defecto "V4"
+    else:
+        idx_canal = record.sig_name.index(canal_elegido)
+        record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate=500)
+        _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
+
+        graficar_picos(picos, record, nombre, canal_elegido)
+        frec_cardiaca = obtener_frecuenciacardiaca(picos)
+
+        st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** {frec_cardiaca} lpm')
+        if frec_cardiaca < 60 or frec_cardiaca > 100:
+            st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
+
         
