@@ -108,7 +108,20 @@ with col4:
 
 graficar_registro(record, nombre, canal)
 
-if st.button('Calcular Frecuencia Cardíaca', type='primary'):
+# Controles de visualización alineados
+col_fc_izq, col_fc_der = st.columns([4, 1])
+
+with col_fc_izq:
+    mostrar_picos = st.selectbox(
+        "¿Mostrar gráfico con picos R?",
+        options=["Sí", "No"],
+        index=0
+    ) == "Sí"
+
+with col_fc_der:
+    calcular_fc = st.button("Calcular FC", type="primary")
+
+if calcular_fc:
     canal_elegido = 'V4'
     if seleccion_canal_manual:
         if canal == 'Todos':
@@ -121,11 +134,12 @@ if st.button('Calcular Frecuencia Cardíaca', type='primary'):
     record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate=500)
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
 
-    signal, t = extraer_senal(record, canal_elegido)
-    fig = graficar_plotly(signal, t, canal_elegido, nombre, picos=picos)
-    st.plotly_chart(fig, use_container_width=True)
-
     frec_cardiaca = obtener_frecuenciacardiaca(picos)
     st.markdown(f'**💓 Frecuencia cardíaca del canal {canal_elegido}:** `{frec_cardiaca} lpm`')
     if frec_cardiaca < 60 or frec_cardiaca > 100:
         st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
+
+    if mostrar_picos:
+        signal, t = extraer_senal(record, canal_elegido)
+        fig = graficar_plotly(signal, t, canal_elegido, nombre, picos=picos)
+        st.plotly_chart(fig, use_container_width=True)
