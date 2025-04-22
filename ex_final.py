@@ -75,6 +75,14 @@ def obtener_frecuenciacardiaca(picos):
 st.set_page_config(layout="wide")
 st.title('Visualización y Análisis de Electrocardiograma')
 
+with st.expander("ℹ️ ¿Cómo funciona esta aplicación?"):
+    st.markdown("""
+    Esta aplicación permite explorar registros de electrocardiogramas (ECG) del dataset *ecg-arrhythmia*.  
+    Podrás visualizar las señales en formato similar al papel milimetrado utilizado en cardiología.  
+    También puedes seleccionar derivadas específicas y calcular la frecuencia cardíaca automáticamente.  
+    El análisis se realiza sobre fragmentos de 10 segundos, facilitando una inspección detallada del ritmo cardíaco.
+    """)
+
 col1, col2 = st.columns(2)
 with col1:
     dir = st.selectbox(
