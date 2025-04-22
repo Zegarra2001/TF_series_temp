@@ -108,18 +108,14 @@ with col4:
 
 graficar_registro(record, nombre, canal)
 
-# Controles de visualización alineados
+# Controles alineados: checkbox a la izquierda, botón a la derecha
 col_fc_izq, col_fc_der = st.columns([4, 1])
 
 with col_fc_izq:
-    mostrar_picos = st.selectbox(
-        "¿Mostrar gráfico con picos R?",
-        options=["Sí", "No"],
-        index=0
-    ) == "Sí"
+    mostrar_picos = st.checkbox("¿Mostrar picos en el gráfico?", value=True)
 
 with col_fc_der:
-    calcular_fc = st.button("Calcular FC", type="primary")
+    calcular_fc = st.button("📈 Calcular FC", type="primary")
 
 if calcular_fc:
     canal_elegido = 'V4'
