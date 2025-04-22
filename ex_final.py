@@ -14,17 +14,18 @@ def extraer_senal(record, canal):
     return signal[:n_muestras], np.linspace(0, 10, n_muestras)
 
 # Graficar ECG con cuadrícula tipo papel
-def graficar_plotly(signal, t, canal, nombre, picos = None):
+def graficar_plotly(signal, t, canal, nombre, picos=None):
     fig = go.Figure()
 
     # Señal
     fig.add_trace(go.Scatter(x=t, y=signal, mode='lines', name=f'Derivada {canal}', line=dict(color='black')))
 
-    # Añadir picos
-    picos_scatt = [(t[i], signal[i]) for i in picos["ECG_R_Peaks"]]
-    if picos_scatt:
-        x_picos, y_picos = zip(*picos_scatt)
-        fig.add_trace(go.Scatter(x=x_picos, y=y_picos, mode='markers', name='Picos R', marker=dict(color='red', size=8)))
+    # Añadir picos si existen
+    if picos is not None:
+        picos_scatt = [(t[i], signal[i]) for i in picos["ECG_R_Peaks"]]
+        if picos_scatt:
+            x_picos, y_picos = zip(*picos_scatt)
+            fig.add_trace(go.Scatter(x=x_picos, y=y_picos, mode='markers', name='Picos R', marker=dict(color='red', size=8)))
 
     # Cuadrícula tipo ECG
     for x in np.arange(0, 10, 0.04):
