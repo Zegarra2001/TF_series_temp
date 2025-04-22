@@ -114,7 +114,7 @@ with col_fc_izq:
     mostrar_picos = st.checkbox("¿Mostrar picos en el gráfico?", value=True, key="mostrar_picos_checkbox")
 
 with col_fc_der:
-    calcular = st.button("📈 Calcular FC", type="primary")
+    calcular = st.button("Calcular FC", type="primary")
 
 # Acción al presionar el botón
 if calcular:
