@@ -14,7 +14,7 @@ def extraer_senal(record, canal):
     return signal[:n_muestras], np.linspace(0, 10, n_muestras)
 
 # Graficar ECG con cuadrícula tipo papel
-def graficar_plotly(signal, t, canal, nombre, picos):
+def graficar_plotly(signal, t, canal, nombre, picos = None):
     fig = go.Figure()
 
     # Señal
