@@ -14,18 +14,17 @@ def extraer_senal(record, canal):
     return signal[:n_muestras], np.linspace(0, 10, n_muestras)
 
 # Graficar ECG con cuadrícula tipo papel
-def graficar_plotly(signal, t, canal, nombre, picos=None):
+def graficar_plotly(signal, t, canal, nombre, picos):
     fig = go.Figure()
 
     # Señal
     fig.add_trace(go.Scatter(x=t, y=signal, mode='lines', name=f'Derivada {canal}', line=dict(color='black')))
 
-    # Añadir picos si existen
-    if picos is not None:
-        picos_scatt = [(t[i], signal[i]) for i in picos["ECG_R_Peaks"]]
-        if picos_scatt:
-            x_picos, y_picos = zip(*picos_scatt)
-            fig.add_trace(go.Scatter(x=x_picos, y=y_picos, mode='markers', name='Picos R', marker=dict(color='red', size=8)))
+    # Añadir picos
+    picos_scatt = [(t[i], signal[i]) for i in picos["ECG_R_Peaks"]]
+    if picos_scatt:
+        x_picos, y_picos = zip(*picos_scatt)
+        fig.add_trace(go.Scatter(x=x_picos, y=y_picos, mode='markers', name='Picos R', marker=dict(color='red', size=8)))
 
     # Cuadrícula tipo ECG
     for x in np.arange(0, 10, 0.04):
@@ -110,9 +109,6 @@ graficar_registro(record, nombre, canal)
 # Sección de cálculo y opciones
 _, __, col_fc_izq, col_fc_der = st.columns([0.25, 0.25, 0.3, 0.2])
 
-with col_fc_izq:
-    mostrar_picos = st.checkbox("¿Mostrar picos en el gráfico?", value=True, key="mostrar_picos_checkbox")
-
 with col_fc_der:
     calcular = st.button("Calcular FC", type="primary")
 
@@ -131,10 +127,10 @@ if calcular:
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
 
     signal, t = extraer_senal(record, canal_elegido)
-    fig = graficar_plotly(signal, t, canal_elegido, nombre, picos=picos if mostrar_picos else None)
+    fig = graficar_plotly(signal, t, canal_elegido, nombre, picos=picos)
     st.plotly_chart(fig, use_container_width=True)
 
     frec_cardiaca = obtener_frecuenciacardiaca(picos)
-    st.markdown(f'**💓 Frecuencia cardíaca del canal {canal_elegido}:** `{frec_cardiaca} lpm`')
+    st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** `{frec_cardiaca} lpm`')
     if frec_cardiaca < 60 or frec_cardiaca > 100:
         st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
