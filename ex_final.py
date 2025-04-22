@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import wfdb
-import matplotlib.pyplot as plt
+import plotly.graph_objs as go
 import neurokit2 as nk
 
 # Obtener la señal de un canal
@@ -10,121 +10,114 @@ def extraer_senal(record, canal):
     fs = record.fs
     idx_canal = record.sig_name.index(canal)
     signal = record.p_signal[:, idx_canal]
-    n_muestras = int(fs * 10) # 10 segundos
+    n_muestras = int(fs * 10)  # 10 segundos
     return signal[:n_muestras], np.linspace(0, 10, n_muestras)
 
-# Dibujar cuadrícula de papel ECG
-def dibujar_cuadricula(ax, vmin=-2, vmax=2):
-    # Cuadrícula fina
-    for x in np.arange(0, 10, 0.04): # 10 segundos
-        ax.axvline(x=x, color='lightgrey', linewidth=0.5)
-    for y in np.arange(vmin, vmax, 0.1):
-        ax.axhline(y=y, color='lightgrey', linewidth=0.5)
-    # Cuadrícula gruesa
-    for x in np.arange(0, 10, 0.20): # 10 segundos
-        ax.axvline(x=x, color='grey', linewidth=1)
-    for y in np.arange(vmin, vmax, 0.5):
-        ax.axhline(y=y, color='grey', linewidth=1)
+# Graficar ECG con cuadrícula tipo papel
+def graficar_plotly(signal, t, canal, nombre, picos=None):
+    fig = go.Figure()
 
-# Función para graficar un canal
-def graficar_registro_canal(record, nombre, canal='I'):
-    signal, t = extraer_senal(record, canal)
-    fig, ax = plt.subplots(figsize=(24, 4))
-    dibujar_cuadricula(ax)
-    ax.plot(t, signal, color='black', linewidth=1)
-    ax.set_xlim([0, 10])
-    ax.set_ylim([-2, 2])
-    ax.set_xlabel('Tiempo (s)')
-    ax.set_ylabel('Amplitud (mV)')
-    ax.set_title(f'ECG - Registro {nombre} - Canal {canal}')
-    ax.set_facecolor('#fffafa')
-    return fig, ax
+    # Señal
+    fig.add_trace(go.Scatter(x=t, y=signal, mode='lines', name=f'Derivada {canal}', line=dict(color='black')))
 
-# Función para graficar un registro completo o solo un canal
+    # Añadir picos si existen
+    if picos is not None:
+        picos_scatt = [(t[i], signal[i]) for i in picos["ECG_R_Peaks"]]
+        if picos_scatt:
+            x_picos, y_picos = zip(*picos_scatt)
+            fig.add_trace(go.Scatter(x=x_picos, y=y_picos, mode='markers', name='Picos R', marker=dict(color='red', size=8)))
+
+    # Cuadrícula tipo ECG
+    for x in np.arange(0, 10, 0.04):
+        fig.add_shape(type="line", x0=x, x1=x, y0=-2, y1=2,
+                      line=dict(color="LightPink", width=0.5), layer="below")
+    for y in np.arange(-2, 2.1, 0.1):
+        fig.add_shape(type="line", x0=0, x1=10, y0=y, y1=y,
+                      line=dict(color="LightPink", width=0.5), layer="below")
+    for x in np.arange(0, 10, 0.2):
+        fig.add_shape(type="line", x0=x, x1=x, y0=-2, y1=2,
+                      line=dict(color="LightPink", width=1.5), layer="below")
+    for y in np.arange(-2, 2.5, 0.5):
+        fig.add_shape(type="line", x0=0, x1=10, y0=y, y1=y,
+                      line=dict(color="LightPink", width=1.5), layer="below")
+
+    fig.update_layout(
+        title=f"ECG - Registro {nombre} - Canal {canal}",
+        xaxis_title="Tiempo (s)",
+        yaxis_title="Amplitud (mV)",
+        xaxis=dict(range=[0, 10], dtick=0.2),
+        yaxis=dict(range=[-2, 2]),
+        plot_bgcolor="white",
+        height=400,
+        margin=dict(l=20, r=20, t=50, b=20),
+        hovermode="x unified"
+    )
+    return fig
+
+# Función para graficar registro
 def graficar_registro(record, nombre, canal='Todos'):
     if canal != 'Todos':
-        fig, ax = graficar_registro_canal(record, nombre, canal)
-        st.pyplot(fig)
+        signal, t = extraer_senal(record, canal)
+        fig = graficar_plotly(signal, t, canal, nombre)
+        st.plotly_chart(fig, use_container_width=True)
     else:
         for canal_individual in record.sig_name:
-            fig, ax = graficar_registro_canal(record, nombre, canal_individual)
-            st.pyplot(fig) 
-
-#Función para graficar la señal junto con sus picos
-def graficar_picos(picos, record, nombre, canal):
-    idx_canal = record.sig_name.index(canal)
-    sig_seleccionada = record.p_signal[:, idx_canal]
-    t = np.linspace(0, 10, len(sig_seleccionada))
-    picos_scatt = np.array([(t[i], sig_seleccionada[i]) 
-                            for i in picos['ECG_R_Peaks']])
-    fig, ax = graficar_registro_canal(record, nombre, canal)
-    ax.scatter(picos_scatt[:, 0], picos_scatt[:, 1], s=100, alpha=1, color='red')
-    st.pyplot(fig)
+            signal, t = extraer_senal(record, canal_individual)
+            fig = graficar_plotly(signal, t, canal_individual, nombre)
+            st.plotly_chart(fig, use_container_width=True)
 
 # Función para obtener frecuencia cardiaca
 def obtener_frecuenciacardiaca(picos):
     fc_array = nk.ecg_rate(picos, sampling_rate=500)
     return int(np.mean(fc_array))
 
+# UI Principal
+st.set_page_config(layout="wide")
 st.title('Visualización y Análisis de Electrocardiograma')
 
-# Selección de registro
-dir = st.selectbox(
-    'Seleccione una carpeta:',
-    (wfdb.get_record_list('ecg-arrhythmia/1.0.0/')), ## Descargar db: agregar botón
-)
-
-nombre = st.selectbox(
-    'Seleccione el registro a visualizar',
-    (wfdb.get_record_list('ecg-arrhythmia/1.0.0/' + dir)),
-)
-
-# Selección de canal
-record = wfdb.rdrecord(nombre, pn_dir = 'ecg-arrhythmia/1.0.0/' + dir)
-
-
-seleccion_canal_manual = st.checkbox('Seleccionar manualmente la derivada para calcular FC')
-canal = 'Todos'
-if seleccion_canal_manual:
-    canal = st.selectbox(
-        'Canal',
-        (['Todos'] + record.sig_name),
+col1, col2 = st.columns(2)
+with col1:
+    dir = st.selectbox(
+        'Carpeta:',
+        (wfdb.get_record_list('ecg-arrhythmia/1.0.0/'))
     )
+with col2:
+    nombre = st.selectbox(
+        'Registro:',
+        (wfdb.get_record_list('ecg-arrhythmia/1.0.0/' + dir))
+    )
+
+record = wfdb.rdrecord(nombre, pn_dir='ecg-arrhythmia/1.0.0/' + dir)
+
+col3, col4 = st.columns([1, 3])
+with col3:
+    seleccion_canal_manual = st.checkbox('Elegir canal')
+
+canal = 'Todos'
+with col4:
+    if seleccion_canal_manual:
+        canal = st.selectbox('Derivada', ['Todos'] + record.sig_name, key="canal_manual")
 
 graficar_registro(record, nombre, canal)
 
-# Obtener rítmo cardiaco
-if st.button('Calcular FC usando esta derivada', type='primary'):
-    canal_elegido = 'V4'  # valor por defecto
-
-    # Si el usuario marcó la casilla para seleccionar manualmente la derivada
+if st.button('Calcular Frecuencia Cardíaca', type='primary'):
+    canal_elegido = 'V4'
     if seleccion_canal_manual:
         if canal == 'Todos':
-            st.error('❌ Por favor, elija una derivada válida')
+            st.error('Por favor, elija una derivada válida')
+            st.stop()
         else:
             canal_elegido = canal
-            idx_canal = record.sig_name.index(canal_elegido)
-            record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate=500)
-            _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
 
-            graficar_picos(picos, record, nombre, canal_elegido)
-            frec_cardiaca = obtener_frecuenciacardiaca(picos)
+    idx_canal = record.sig_name.index(canal_elegido)
+    record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate=500)
+    _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
 
-            st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** {frec_cardiaca} lpm')
-            if frec_cardiaca < 60 or frec_cardiaca > 100:
-                st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
+    signal, t = extraer_senal(record, canal_elegido)
+    fig = graficar_plotly(signal, t, canal_elegido, nombre, picos=picos)
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Si no marca la casilla: usar el canal por defecto "V4"
-    else:
-        idx_canal = record.sig_name.index(canal_elegido)
-        record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate=500)
-        _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
-
-        graficar_picos(picos, record, nombre, canal_elegido)
-        frec_cardiaca = obtener_frecuenciacardiaca(picos)
-
-        st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** {frec_cardiaca} lpm')
-        if frec_cardiaca < 60 or frec_cardiaca > 100:
-            st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
-
-        
+    frec_cardiaca = obtener_frecuenciacardiaca(picos)
+    st.markdown(f'**💓 Frecuencia cardíaca del canal {canal_elegido}:** `{frec_cardiaca} lpm`')
+    if frec_cardiaca < 60 or frec_cardiaca > 100:
+        st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
