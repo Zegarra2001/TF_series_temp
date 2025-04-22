@@ -93,7 +93,7 @@ col3, col4 = st.columns([1, 3])
 with col3:
     seleccion_canal_manual = st.checkbox('Elegir canal')
 
-canal = 'Todos'
+canal = 'V4'
 with col4:
     if seleccion_canal_manual:
         canal = st.selectbox('Derivada', ['Todos'] + record.sig_name, key="canal_manual")
