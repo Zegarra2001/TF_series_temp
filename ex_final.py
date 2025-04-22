@@ -72,7 +72,7 @@ def obtener_frecuenciacardiaca(picos):
     return int(np.mean(fc_array))
 
 # UI Principal
-st.title('Visualización y Análisis de Electrocardiograma')
+st.title('Gráfico de natalidad de Tralaleros Tralalas')
 
 with st.expander("ℹ️ ¿Cómo funciona esta aplicación?"):
     st.markdown("""
