@@ -96,7 +96,7 @@ with col3:
 canal = 'V4'
 with col4:
     if seleccion_canal_manual:
-        canal = st.selectbox('Derivada', ['Todos'] + record.sig_name, key="canal_manual")
+        canal = st.selectbox('Derivada', ['Todos'] + record.sig_name, index=record.sig_name.index(canal), key="canal_manual")
 
 graficar_registro(record, nombre, canal)
 
