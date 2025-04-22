@@ -109,11 +109,11 @@ with col4:
 graficar_registro(record, nombre, canal)
 
 # Sección de cálculo y opciones
-col_fc_izq, col_fc_der = st.columns([4, 1])
+_, __, col_fc_izq, col_fc_der = st.columns([0.25, 0.25, 0.25, 0.25])
 
 with col_fc_izq:
     mostrar_picos = st.checkbox("¿Mostrar picos en el gráfico?", value=True, key="mostrar_picos_checkbox")
-    
+
 with col_fc_der:
     calcular = st.button("📈 Calcular FC", type="primary")
 
