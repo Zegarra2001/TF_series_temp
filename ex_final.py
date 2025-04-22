@@ -72,7 +72,6 @@ def obtener_frecuenciacardiaca(picos):
     return int(np.mean(fc_array))
 
 # UI Principal
-st.set_page_config(layout="wide")
 st.title('Visualización y Análisis de Electrocardiograma')
 
 with st.expander("ℹ️ ¿Cómo funciona esta aplicación?"):
