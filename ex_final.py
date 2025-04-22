@@ -108,7 +108,7 @@ with col4:
 graficar_registro(record, nombre, canal)
 
 # Sección de cálculo y opciones
-_, __, col_fc_izq, col_fc_der = st.columns([0.25, 0.25, 0.25, 0.25])
+_, __, col_fc_izq, col_fc_der = st.columns([0.25, 0.25, 0.3, 0.2])
 
 with col_fc_izq:
     mostrar_picos = st.checkbox("¿Mostrar picos en el gráfico?", value=True, key="mostrar_picos_checkbox")
