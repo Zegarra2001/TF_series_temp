@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.nn as nn
 from utils.preprocesamiento import construir_dataset
 from models.cnn_model import ECGClassifier
@@ -48,4 +49,5 @@ for epoch in range(10):
         total += y_batch.size(0)
     print(f"Epoch {epoch+1}: Accuracy {correct/total:.2f}")
 
+np.save("models/label_encoder_classes.npy", encoder.classes_)
 torch.save(model.state_dict(), "models/modelo_CNN_MLP.pt")
