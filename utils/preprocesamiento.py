@@ -11,7 +11,7 @@ def construir_dataset(ruta_base, canal='II'):
     - canal: derivada a usar
     - duracion: duración máxima del segmento en segundos (por defecto 10)
     """
-
+    
     X = []
     y = []
     for subdir, _, files in os.walk(ruta_base):
@@ -21,6 +21,7 @@ def construir_dataset(ruta_base, canal='II'):
                 path = os.path.join(subdir, nombre)
                 etiqueta = extraer_etiqueta_snomed(path)
                 if etiqueta in snomed_map.values():
+                    print(path)
                     record = wfdb.rdrecord(path)
                     if canal not in record.sig_name:
                         continue

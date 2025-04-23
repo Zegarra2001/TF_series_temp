@@ -8,10 +8,8 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
 
 # Preparar datos
-X_data, y_data = construir_dataset('C:/Users/Sergio/Documents/Academic-miscelaneous/INFOPUCP/' \
-                                    'Dimplomatura de Inteligencia Artificial/Módulo 3 (Feb-Abr)/' \
-                                    'Redes Neuronales/Trabajo final/' \
-                                    'a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0/WFDBRecords')
+ruta = r'C:\Users\Sergio\Documents\Academic-miscelaneous\INFOPUCP\Dimplomatura de Inteligencia Artificial\Módulo 3 (Feb-Abr)\Redes Neuronales\Trabajo final\a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0\WFDBRecords'
+X_data, y_data = construir_dataset(ruta)
 encoder = LabelEncoder()
 y_encoded = encoder.fit_transform(y_data)
 

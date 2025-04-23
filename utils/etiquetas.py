@@ -11,10 +11,13 @@ snomed_map = {
 
 # Función para extraer etiquetas
 def extraer_etiqueta_snomed(hea_path):
-    record = wfdb.rdheader(hea_path)
-    for comment in record.comments:
-        if 'SNOMED CT' in comment:
-            for code in snomed_map:
-                if code in comment:
-                    return snomed_map[code]
+    hea_file = hea_path if hea_path.endswith('.hea') else hea_path + '.hea'
+    try:
+        with open(hea_file, 'r') as f:
+            for line in f:
+                for code in snomed_map:
+                    if code in line:
+                        return snomed_map[code]
+    except Exception as e:
+        print(f"Error leyendo {hea_file}: {e}")
     return None
