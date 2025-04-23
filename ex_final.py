@@ -161,7 +161,7 @@ if calcular:
     if frec_cardiaca < 60 or frec_cardiaca > 100:
         st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
 
-# Sección de cálculo y opciones
+# Clasificación con modelo
 _, __, ___, col_clase_der = st.columns([0.25, 0.25, 0.3, 0.2])
 
 with col_clase_der:
