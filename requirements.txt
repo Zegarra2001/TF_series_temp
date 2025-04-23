@@ -1,3 +1,4 @@
 wfdb
 neurokit2
 plotly
+torch
