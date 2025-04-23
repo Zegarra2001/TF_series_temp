@@ -80,6 +80,11 @@ def predecir_clase_ecg(signal):
     with torch.no_grad():
         output = modelo(signal)
         pred_idx = output.argmax(dim=1).item()
+        
+        probs = torch.softmax(output, dim=1).cpu().numpy().flatten()
+        df_probs = pd.DataFrame({"Ritmo": classes, "Probabilidad": probs})
+        st.bar_chart(df_probs.set_index("Ritmo"))
+
         return classes[pred_idx]
 
 
@@ -171,7 +176,3 @@ if clasificar:
     signal, _ = extraer_senal(record, canal_pred)
     clase_predicha = predecir_clase_ecg(signal)
     st.success(f"✅ Ritmo clasificado: **{clase_predicha}**")
-
-    probs = torch.softmax(output, dim=1).cpu().numpy().flatten()
-    df_probs = pd.DataFrame({"Ritmo": classes, "Probabilidad": probs})
-    st.bar_chart(df_probs.set_index("Ritmo"))
