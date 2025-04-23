@@ -1,10 +1,12 @@
 import os
 import wfdb
+import numpy as np
+from tqdm import tqdm
 
 snomed_map = {
-    '426177001': 'Sinus Rhythm',
-    '427084000': 'Sinus Bradycardia',
-    '164889003': 'Sinus Tachycardia',
+    '426783006': 'Sinus Rhythm',
+    '426177001': 'Sinus Bradycardia',
+    '427084000': 'Sinus Tachycardia',
     '164889003': 'Atrial Fibrillation'
 }
 
