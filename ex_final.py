@@ -1,9 +1,12 @@
+import wfdb
+import torch
 import streamlit as st
 import pandas as pd
 import numpy as np
-import wfdb
 import plotly.graph_objs as go
 import neurokit2 as nk
+from models.cnn_model import ECGClassifier
+from sklearn.preprocessing import LabelEncoder
 
 # Obtener la señal de un canal
 def extraer_senal(record, canal):
@@ -71,7 +74,29 @@ def obtener_frecuenciacardiaca(picos):
     fc_array = nk.ecg_rate(picos, sampling_rate=500)
     return int(np.mean(fc_array))
 
-# UI Principal
+# Función para predecir etiqueta
+def predecir_clase_ecg(signal):
+    signal = torch.tensor(signal, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(device)
+    with torch.no_grad():
+        output = modelo(signal)
+        pred_idx = output.argmax(dim=1).item()
+        return classes[pred_idx]
+
+
+# Ruta al modelo entrenado y al codificador
+modelo_path = 'models/modelo_CNN_MLP.pt'
+label_encoder_path = 'models/label_encoder_classes.npy'
+
+# Cargar modelo entrenado
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+modelo = ECGClassifier().to(device)
+modelo.load_state_dict(torch.load(modelo_path, map_location=device))
+modelo.eval()
+
+# Cargar el codificador de etiquetas
+classes = np.load(label_encoder_path)
+
+# App en sí
 st.title('Visualización y Análisis de Electrocardiograma')
 
 with st.expander("ℹ️ ¿Cómo funciona esta aplicación?"):
@@ -135,3 +160,18 @@ if calcular:
     st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** `{frec_cardiaca} lpm`')
     if frec_cardiaca < 60 or frec_cardiaca > 100:
         st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
+
+# Sección de cálculo y opciones
+_, __, ___, col_clase_der = st.columns([0.25, 0.25, 0.3, 0.2])
+
+with col_clase_der:
+    clasificar = st.button("📊 Clasificar ritmo cardíaco")
+if clasificar:
+    canal_pred = canal if canal != 'Todos' else 'II'
+    signal, _ = extraer_senal(record, canal_pred)
+    clase_predicha = predecir_clase_ecg(signal)
+    st.success(f"✅ Ritmo clasificado: **{clase_predicha}**")
+
+    probs = torch.softmax(output, dim=1).cpu().numpy().flatten()
+    df_probs = pd.DataFrame({"Ritmo": classes, "Probabilidad": probs})
+    st.bar_chart(df_probs.set_index("Ritmo"))
