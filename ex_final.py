@@ -79,7 +79,7 @@ with st.expander("ℹ️ ¿Cómo funciona esta aplicación?"):
     Esta aplicación permite explorar registros de electrocardiogramas (ECG) del dataset *ecg-arrhythmia*.  
     Podrás visualizar las señales en formato similar al papel milimetrado utilizado en cardiología.  
     También puedes seleccionar derivadas específicas y calcular la frecuencia cardíaca automáticamente.  
-    El análisis se realiza sobre fragmentos de 10 segundos, facilitando una inspección detallada del ritmo cardíaco.
+    El análisis se realiza sobre los fragmentos de 10 segundos.
     """)
 
 col1, col2 = st.columns(2)
