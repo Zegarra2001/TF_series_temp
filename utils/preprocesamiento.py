@@ -5,7 +5,7 @@ from utils.etiquetas import extraer_etiqueta_snomed, snomed_map
 
 def construir_dataset(ruta_base, canal='II'):
     """
-    Recorre todos los registros del dataset y construye X (señales) y y (etiquetas).
+    Recorre todos los registros del dataset y construye X (señales) y Y (etiquetas).
     
     - ruta_base: ruta al dataset (local/no incluido en el github)
     - canal: derivada a usar
@@ -21,7 +21,6 @@ def construir_dataset(ruta_base, canal='II'):
                 path = os.path.join(subdir, nombre)
                 etiqueta = extraer_etiqueta_snomed(path)
                 if etiqueta in snomed_map.values():
-                    print(path)
                     record = wfdb.rdrecord(path)
                     if canal not in record.sig_name:
                         continue
