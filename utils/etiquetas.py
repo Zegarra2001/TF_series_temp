@@ -1,6 +1,3 @@
-import os
-import wfdb
-
 # Diccionario SNOMED
 snomed_map = {
     '426177001': 'Sinus Bradycardia',

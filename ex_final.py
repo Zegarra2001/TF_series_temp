@@ -10,7 +10,7 @@ from sklearn.preprocessing import LabelEncoder
 
 # Obtener la señal de un canal
 def extraer_senal(record, canal):
-    fs = record.fs
+    fs = record.fs #500 Hz
     idx_canal = record.sig_name.index(canal)
     signal = record.p_signal[:, idx_canal]
     n_muestras = int(fs * 10)  # 10 segundos
@@ -70,9 +70,16 @@ def graficar_registro(record, nombre, canal='Todos'):
             st.plotly_chart(fig, use_container_width=True)
 
 # Función para obtener frecuencia cardiaca
-def obtener_frecuenciacardiaca(picos):
-    fc_array = nk.ecg_rate(picos, sampling_rate=500)
-    return int(np.mean(fc_array))
+def obtener_frecuenciacardiaca(picos, fs=500):
+    r_peaks_idx = np.where(picos["ECG_R_Peaks"] == 1)[0]
+    
+    rr_intervals = np.diff(r_peaks_idx) / fs
+    
+    if len(rr_intervals) > 0:
+        fc = 60 / np.mean(rr_intervals)
+        return int(fc)
+    else:
+        return 0
 
 # Función para predecir etiqueta
 def predecir_clase_ecg(signal):
@@ -87,6 +94,21 @@ def predecir_clase_ecg(signal):
 
         return classes[pred_idx]
 
+# Clasificación original desde el .hea
+def obtener_clasificacion_real(record):
+    clases_validas = {
+        '426177001': 'Sinus Bradycardia',
+        '426783006': 'Sinus Rhythm',
+        '164889003': 'Atrial Fibrillation',
+        '427084000': 'Sinus Tachycardia'
+    }
+    codigos = []
+    for comment in record.comments:
+        if comment.startswith('#Dx:'):
+            codigos = comment.replace('#Dx:', '').strip().split(',')
+            break
+    etiquetas = [clases_validas[c] for c in codigos if c in clases_validas]
+    return etiquetas if etiquetas else ['-']
 
 # Ruta al modelo entrenado y al codificador
 modelo_path = 'models/modelo_CNN_MLP.pt'
@@ -130,7 +152,7 @@ col3, col4 = st.columns([1, 3])
 with col3:
     seleccion_canal_manual = st.checkbox('Elegir canal')
 
-canal = 'V4'
+canal = 'II' # Derivada mostrada por defecto
 with col4:
     if seleccion_canal_manual:
         canal = st.selectbox('Derivada', ['Todos'] + record.sig_name, index=record.sig_name.index(canal)+1, key="canal_manual")
@@ -138,14 +160,14 @@ with col4:
 graficar_registro(record, nombre, canal)
 
 # Sección de cálculo y opciones
-_, __, col_fc_izq, col_fc_der = st.columns([0.25, 0.25, 0.3, 0.2])
+_, __, ___, col_fc_der = st.columns([0.25, 0.25, 0.3, 0.2])
 
 with col_fc_der:
     calcular = st.button("Calcular FC", type="primary")
 
 # Acción al presionar el botón
 if calcular:
-    canal_elegido = 'V4'
+    canal_elegido = 'II'
     if seleccion_canal_manual:
         if canal == 'Todos':
             st.error('Por favor, elija una derivada válida')
@@ -176,3 +198,6 @@ if clasificar:
     signal, _ = extraer_senal(record, canal_pred)
     clase_predicha = predecir_clase_ecg(signal)
     st.success(f"✅ Ritmo clasificado: **{clase_predicha}**")
+
+    etiquetas_real = obtener_clasificacion_real(record)
+    st.info(f"📌 Clasificación original: **{', '.join(etiquetas_real)}**")

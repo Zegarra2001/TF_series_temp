@@ -27,7 +27,7 @@ model = ECGClassifier().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 loss_fn = nn.CrossEntropyLoss()
 
-for epoch in range(10):
+for epoch in range(20):
     model.train()
     for X_batch, y_batch in train_loader:
         X_batch, y_batch = X_batch.to(device), y_batch.to(device)
