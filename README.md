@@ -38,8 +38,8 @@ TF_series_temp/
 
 Este proyecto utiliza el dataset público de PhysioNet:
 
-Nombre: A large-scale 12-lead electrocardiogram database for arrhythmia study  
-Link: https://physionet.org/content/ecg-arrhythmia/1.0.0/
+**Nombre:** A large-scale 12-lead electrocardiogram database for arrhythmia study  
+**Link:** https://physionet.org/content/ecg-arrhythmia/1.0.0/
 
 > Debido al tamaño del dataset, no está incluido directamente en este repositorio. Se espera que esté disponible en una ruta local para el entrenamiento. Para al funcionamiento de la app, se hace la consulta a tiempo real
 
