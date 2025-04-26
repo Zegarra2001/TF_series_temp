@@ -55,7 +55,7 @@ def graficar_plotly(signal, t, canal, nombre, picos=None):
         hovermode="x unified",
         showlegend=False,
         xaxis=dict(
-            title="Tiempo (s)",
+            title=dict(text="Tiempo (s)", font=dict(color="white", size=16)),
             range=[0, 10],
             showgrid=True,
             gridcolor="lightpink",  # Cuadrícula fina
@@ -64,11 +64,10 @@ def graficar_plotly(signal, t, canal, nombre, picos=None):
             tick0=0,
             dtick=0.2,
             tickfont=dict(color="white", size=12),  # Ticks blancos
-            titlefont=dict(color="white", size=16),  # Título eje X blanco
             zeroline=False
         ),
         yaxis=dict(
-            title="Amplitud (mV)",
+            title=dict(text="Amplitud (mV)", font=dict(color="white", size=16)),
             range=[-2, 2],
             showgrid=True,
             gridcolor="lightpink",  # Cuadrícula fina
@@ -77,7 +76,6 @@ def graficar_plotly(signal, t, canal, nombre, picos=None):
             tick0=0,
             dtick=0.5,
             tickfont=dict(color="white", size=12),  # Ticks blancos
-            titlefont=dict(color="white", size=16),  # Título eje Y blanco
             zeroline=False
         )
     )
