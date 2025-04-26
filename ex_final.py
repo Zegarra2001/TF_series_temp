@@ -123,13 +123,13 @@ def predecir_clase_ecg(signal):
     signal = torch.tensor(signal, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(device)
     with torch.no_grad():
         output = modelo(signal)
-
-        probs = torch.sigmoid(output).cpu().numpy().flatten()  # NO usar softmax, usar sigmoid
+        pred_idx = output.argmax(dim=1).item()
+        
+        probs = torch.softmax(output, dim=1).cpu().numpy().flatten()
         df_probs = pd.DataFrame({"Ritmo": classes, "Probabilidad": probs})
         st.bar_chart(df_probs.set_index("Ritmo"))
-
-        etiquetas_predichas = [classes[i] for i, p in enumerate(probs) if p >= 0.5]
-        return etiquetas_predichas if etiquetas_predichas else ['-']
+        
+        return str(classes[pred_idx])
 
 # Clasificación original desde el .hea
 def obtener_clasificacion_real(record):
