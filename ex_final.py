@@ -139,14 +139,17 @@ def obtener_clasificacion_real(record):
         '164889003': 'Atrial Fibrillation',
         '427084000': 'Sinus Tachycardia'
     }
+
     codigos = []
-    st.write(record.comments)
     for comment in record.comments:
-        if comment.startswith('#Dx:'):
-            codigos = comment.replace('#Dx:', '').strip().split(',')
+        if comment.startswith('Dx:'):
+            codigos_str = comment.replace('Dx:', '').strip()
+            codigos = codigos_str.split(',')
             break
-    etiquetas = [clases_validas[c] for c in codigos if c in clases_validas]
+
+    etiquetas = [clases_validas[c.strip()] for c in codigos if c.strip() in clases_validas]
     return etiquetas if etiquetas else ['-']
+
 
 # Ruta al modelo entrenado y al codificador
 modelo_path = 'models/modelo_CNN_MLP.pt'
