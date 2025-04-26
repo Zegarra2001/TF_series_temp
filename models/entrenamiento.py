@@ -52,8 +52,8 @@ for epoch in range(epocas):
     for X_batch, y_batch in val_loader:
         X_batch, y_batch = X_batch.to(device), y_batch.to(device)
         output = model(X_batch)
-        pred = output.argmax(dim=1)
-        correct += (pred == y_batch).sum().item()
+        pred = torch.sigmoid(output) > 0.5  # Umbral de decisión
+        correct += (pred == y_batch.bool()).all(dim=1).sum().item()
         total += y_batch.size(0)
     print(f"Epoch {epoch+1}/{epocas}: Accuracy {correct/total:.2f}")
 
