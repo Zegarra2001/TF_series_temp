@@ -8,16 +8,16 @@ import neurokit2 as nk
 from models.cnn_model import ECGClassifier
 from sklearn.preprocessing import LabelEncoder
 
-# Obtener la señal de un canal
-def extraer_senal(record, canal):
+# Obtener la señal de un derivada
+def extraer_senal(record, derivada):
     fs = record.fs #500 Hz
-    idx_canal = record.sig_name.index(canal)
-    signal = record.p_signal[:, idx_canal]
+    idx_derivada = record.sig_name.index(derivada)
+    signal = record.p_signal[:, idx_derivada]
     n_muestras = int(fs * 10)  # 10 segundos
     return signal[:n_muestras], np.linspace(0, 10, n_muestras)
 
 # Graficar ECG con cuadrícula tipo papel
-def graficar_plotly(signal, t, canal, nombre, picos=None):
+def graficar_plotly(signal, t, derivada, nombre, picos=None):
     fig = go.Figure()
 
     # Señal ECG
@@ -25,7 +25,7 @@ def graficar_plotly(signal, t, canal, nombre, picos=None):
         x=t,
         y=signal,
         mode='lines',
-        name=f'Derivada {canal}',
+        name=f'Derivada {derivada}',
         line=dict(color='black')  # Línea negra
     ))
 
@@ -45,7 +45,7 @@ def graficar_plotly(signal, t, canal, nombre, picos=None):
     # Configuración de layout
     fig.update_layout(
         title=dict(
-            text=f"ECG - Registro {nombre} - Canal {canal}",
+            text=f"ECG - Registro {nombre} - derivada {derivada}",
             font=dict(color='white', size=20)  # Título en blanco
         ),
         plot_bgcolor="white",         # Fondo de área de trazado blanco
@@ -99,15 +99,15 @@ def graficar_plotly(signal, t, canal, nombre, picos=None):
     return fig
 
 # Función para graficar registro
-def graficar_registro(record, nombre, canal='Todos'):
-    if canal != 'Todos':
-        signal, t = extraer_senal(record, canal)
-        fig = graficar_plotly(signal, t, canal, nombre)
+def graficar_registro(record, nombre, derivada='Todos'):
+    if derivada != 'Todos':
+        signal, t = extraer_senal(record, derivada)
+        fig = graficar_plotly(signal, t, derivada, nombre)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        for canal_individual in record.sig_name:
-            signal, t = extraer_senal(record, canal_individual)
-            fig = graficar_plotly(signal, t, canal_individual, nombre)
+        for derivada_individual in record.sig_name:
+            signal, t = extraer_senal(record, derivada_individual)
+            fig = graficar_plotly(signal, t, derivada_individual, nombre)
             st.plotly_chart(fig, use_container_width=True)
 
 # Función para obtener frecuencia cardiaca
@@ -187,14 +187,14 @@ record = wfdb.rdrecord(nombre, pn_dir='ecg-arrhythmia/1.0.0/' + dir)
 
 col3, col4 = st.columns([1, 3])
 with col3:
-    seleccion_canal_manual = st.checkbox('Elegir canal')
+    seleccion_derivada_manual = st.checkbox('Elegir derivada')
 
-canal = 'II' # Derivada mostrada por defecto
+derivada = 'II' # Derivada mostrada por defecto
 with col4:
-    if seleccion_canal_manual:
-        canal = st.selectbox('Derivada', ['Todos'] + record.sig_name, index=record.sig_name.index(canal)+1, key="canal_manual")
+    if seleccion_derivada_manual:
+        derivada = st.selectbox('Derivada', ['Todos'] + record.sig_name, index=record.sig_name.index(derivada)+1, key="derivada_manual")
 
-graficar_registro(record, nombre, canal)
+graficar_registro(record, nombre, derivada)
 
 # Sección de cálculo y opciones
 _, __, ___, col_fc_der = st.columns([0.25, 0.25, 0.3, 0.2])
@@ -204,27 +204,27 @@ with col_fc_der:
 
 # Acción al presionar el botón
 if calcular:
-    canal_elegido = 'II'
-    if seleccion_canal_manual:
-        if canal == 'Todos':
+    derivada_elegido = 'II'
+    if seleccion_derivada_manual:
+        if derivada == 'Todos':
             st.error('Por favor, elija una derivada válida')
             st.stop()
         else:
-            canal_elegido = canal
+            derivada_elegido = derivada
 
     # Extraer exactamente los mismos 10s de señal
-    signal_raw, t = extraer_senal(record, canal_elegido)
+    signal_raw, t = extraer_senal(record, derivada_elegido)
     record_limpio = nk.ecg_clean(signal_raw, sampling_rate=500)
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
 
     # Visualizar con picos detectados
-    fig = graficar_plotly(signal_raw, t, canal_elegido, nombre, picos=picos)
+    fig = graficar_plotly(signal_raw, t, derivada_elegido, nombre, picos=picos)
     st.plotly_chart(fig, use_container_width=True)
 
     # Calcular frecuencia cardíaca
     frec_cardiaca = obtener_frecuenciacardiaca(picos)
 
-    st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** `{frec_cardiaca} lpm`')
+    st.markdown(f'**Frecuencia cardíaca del derivada {derivada_elegido}:** `{frec_cardiaca} lpm`')
     if frec_cardiaca < 60 or frec_cardiaca > 100:
         st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
 
@@ -234,8 +234,8 @@ _, __, ___, col_clase_der = st.columns([0.25, 0.25, 0.3, 0.2])
 with col_clase_der:
     clasificar = st.button("📊 Clasificar ritmo cardíaco")
 if clasificar:
-    canal_pred = canal if canal != 'Todos' else 'II'
-    signal, _ = extraer_senal(record, canal_pred)
+    derivada_pred = derivada if derivada != 'Todos' else 'II'
+    signal, _ = extraer_senal(record, derivada_pred)
     clase_predicha = predecir_clase_ecg(signal)
     st.success(f"✅ Ritmo clasificado: **{clase_predicha}**")
 
