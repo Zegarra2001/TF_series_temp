@@ -11,10 +11,19 @@ from torch.utils.data import TensorDataset, DataLoader
 ruta = r'C:\Users\Sergio\Documents\Academic-miscelaneous\INFOPUCP\Dimplomatura de Inteligencia Artificial\Módulo 3 (Feb-Abr)\Redes Neuronales\Trabajo final\a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0\WFDBRecords'
 X_data, y_data = construir_dataset(ruta)
 encoder = LabelEncoder()
-y_encoded = encoder.fit_transform(y_data)
+encoder.fit(['Atrial Fibrillation', 'Sinus Bradycardia', 'Sinus Rhythm', 'Sinus Tachycardia'])
+y_encoded = []
+for etiqueta in y_data:
+    multi_label = [0] * len(encoder.classes_)
+    for e in etiqueta.split(','):
+        if e in encoder.classes_:
+            idx = list(encoder.classes_).index(e)
+            multi_label[idx] = 1
+    y_encoded.append(multi_label)
+y_encoded = np.array(y_encoded)
 
 X_tensor = torch.tensor(X_data, dtype=torch.float32).unsqueeze(1)
-y_tensor = torch.tensor(y_encoded)
+y_tensor = torch.tensor(y_encoded, dtype=torch.float32)
 
 X_train, X_val, y_train, y_val = train_test_split(X_tensor, y_tensor, test_size=0.2)
 
@@ -25,9 +34,10 @@ val_loader = DataLoader(TensorDataset(X_val, y_val), batch_size=32)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = ECGClassifier().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-loss_fn = nn.CrossEntropyLoss()
+loss_fn = nn.BCEWithLogitsLoss()
 
-for epoch in range(20):
+epocas = 10
+for epoch in range(epocas):
     model.train()
     for X_batch, y_batch in train_loader:
         X_batch, y_batch = X_batch.to(device), y_batch.to(device)
@@ -45,7 +55,7 @@ for epoch in range(20):
         pred = output.argmax(dim=1)
         correct += (pred == y_batch).sum().item()
         total += y_batch.size(0)
-    print(f"Epoch {epoch+1}: Accuracy {correct/total:.2f}")
+    print(f"Epoch {epoch+1}/{epocas}: Accuracy {correct/total:.2f}")
 
 np.save("models/label_encoder_classes.npy", encoder.classes_)
 torch.save(model.state_dict(), "models/modelo_CNN_MLP.pt")

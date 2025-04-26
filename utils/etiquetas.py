@@ -1,3 +1,5 @@
+import wfdb
+
 # Diccionario SNOMED
 snomed_map = {
     '426177001': 'Sinus Bradycardia',
@@ -7,14 +9,13 @@ snomed_map = {
 }
 
 # Función para extraer etiquetas
-def extraer_etiqueta_snomed(hea_path):
-    hea_file = hea_path if hea_path.endswith('.hea') else hea_path + '.hea'
-    try:
-        with open(hea_file, 'r') as f:
-            for line in f:
-                for code in snomed_map:
-                    if code in line:
-                        return snomed_map[code]
-    except Exception as e:
-        print(f"Error leyendo {hea_file}: {e}")
-    return None
+def extraer_etiqueta_snomed(path):
+    record = wfdb.rdheader(path)
+    etiquetas = []
+    for comment in record.comments:
+        if comment.startswith('Dx:'):
+            codigos = comment.replace('Dx:', '').strip().split(',')
+            for code in codigos:
+                if code in snomed_map:
+                    etiquetas.append(snomed_map[code])
+    return etiquetas
