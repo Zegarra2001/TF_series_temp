@@ -71,15 +71,11 @@ def graficar_registro(record, nombre, canal='Todos'):
 
 # Función para obtener frecuencia cardiaca
 def obtener_frecuenciacardiaca(picos, fs=500):
-    r_peaks_idx = np.where(picos["ECG_R_Peaks"] == 1)
-    
+    r_peaks_idx = picos['ECG_R_Peaks']
     rr_intervals = np.diff(r_peaks_idx) / fs
-    
     if len(rr_intervals) > 0:
-        fc = 60 / np.mean(rr_intervals)
-        return int(fc)
-    else:
-        return 0
+        return int(60 / np.mean(rr_intervals))
+    return 0
 
 # Función para predecir etiqueta
 def predecir_clase_ecg(signal):
