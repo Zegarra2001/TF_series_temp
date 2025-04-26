@@ -140,6 +140,7 @@ def obtener_clasificacion_real(record):
         '427084000': 'Sinus Tachycardia'
     }
     codigos = []
+    st.write(record.comments)
     for comment in record.comments:
         if comment.startswith('#Dx:'):
             codigos = comment.replace('#Dx:', '').strip().split(',')
