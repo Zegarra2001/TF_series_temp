@@ -71,7 +71,7 @@ def graficar_registro(record, nombre, canal='Todos'):
 
 # Función para obtener frecuencia cardiaca
 def obtener_frecuenciacardiaca(picos, fs=500):
-    r_peaks_idx = np.where(picos["ECG_R_Peaks"] == 1)[0]
+    r_peaks_idx = np.where(picos["ECG_R_Peaks"] == 1)
     
     rr_intervals = np.diff(r_peaks_idx) / fs
     
