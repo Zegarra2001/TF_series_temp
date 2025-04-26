@@ -20,41 +20,84 @@ def extraer_senal(record, canal):
 def graficar_plotly(signal, t, canal, nombre, picos=None):
     fig = go.Figure()
 
-    # Señal
-    fig.add_trace(go.Scatter(x=t, y=signal, mode='lines', name=f'Derivada {canal}', line=dict(color='black')))
+    # Señal ECG
+    fig.add_trace(go.Scattergl(
+        x=t,
+        y=signal,
+        mode='lines',
+        name=f'Derivada {canal}',
+        line=dict(color='black')  # Línea negra
+    ))
 
-    # Añadir picos si existen
+    # Picos R (opcional)
     if picos is not None:
         picos_scatt = [(t[i], signal[i]) for i in picos["ECG_R_Peaks"]]
         if picos_scatt:
             x_picos, y_picos = zip(*picos_scatt)
-            fig.add_trace(go.Scatter(x=x_picos, y=y_picos, mode='markers', name='Picos R', marker=dict(color='red', size=8)))
+            fig.add_trace(go.Scattergl(
+                x=x_picos,
+                y=y_picos,
+                mode='markers',
+                name='Picos R',
+                marker=dict(color='red', size=8)
+            ))
 
-    # Cuadrícula tipo ECG
-    for x in np.arange(0, 10, 0.04):
+    # Configuración de layout
+    fig.update_layout(
+        title=dict(
+            text=f"ECG - Registro {nombre} - Canal {canal}",
+            font=dict(color='white', size=20)  # Título en blanco
+        ),
+        plot_bgcolor="white",         # Fondo de área de trazado blanco
+        paper_bgcolor="rgba(0,0,0,0)", # Fondo exterior transparente
+        height=450,
+        margin=dict(l=40, r=40, t=60, b=40),
+        hovermode="x unified",
+        showlegend=False,
+        xaxis=dict(
+            title="Tiempo (s)",
+            range=[0, 10],
+            showgrid=True,
+            gridcolor="lightpink",  # Cuadrícula fina
+            gridwidth=0.5,
+            tickmode="linear",
+            tick0=0,
+            dtick=0.2,
+            tickfont=dict(color="white", size=12),  # Ticks blancos
+            titlefont=dict(color="white", size=16),  # Título eje X blanco
+            zeroline=False
+        ),
+        yaxis=dict(
+            title="Amplitud (mV)",
+            range=[-2, 2],
+            showgrid=True,
+            gridcolor="lightpink",  # Cuadrícula fina
+            gridwidth=0.5,
+            tickmode="linear",
+            tick0=0,
+            dtick=0.5,
+            tickfont=dict(color="white", size=12),  # Ticks blancos
+            titlefont=dict(color="white", size=16),  # Título eje Y blanco
+            zeroline=False
+        )
+    )
+
+    # Cuadrícula pequeña (cada 0.04s y 0.1mV)
+    for x in np.arange(0, 10.01, 0.04):
         fig.add_shape(type="line", x0=x, x1=x, y0=-2, y1=2,
-                      line=dict(color="LightPink", width=0.5), layer="below")
-    for y in np.arange(-2, 2.1, 0.1):
+                      line=dict(color="lightpink", width=0.5), layer="below")
+    for y in np.arange(-2, 2.01, 0.1):
         fig.add_shape(type="line", x0=0, x1=10, y0=y, y1=y,
-                      line=dict(color="LightPink", width=0.5), layer="below")
-    for x in np.arange(0, 10, 0.2):
+                      line=dict(color="lightpink", width=0.5), layer="below")
+
+    # Cuadrícula gruesa (cada 0.2s y 0.5mV)
+    for x in np.arange(0, 10.01, 0.2):
         fig.add_shape(type="line", x0=x, x1=x, y0=-2, y1=2,
-                      line=dict(color="LightPink", width=1.5), layer="below")
+                      line=dict(color="white", width=1), layer="below")
     for y in np.arange(-2, 2.5, 0.5):
         fig.add_shape(type="line", x0=0, x1=10, y0=y, y1=y,
-                      line=dict(color="LightPink", width=1.5), layer="below")
+                      line=dict(color="white", width=1), layer="below")
 
-    fig.update_layout(
-        title=f"ECG - Registro {nombre} - Canal {canal}",
-        xaxis_title="Tiempo (s)",
-        yaxis_title="Amplitud (mV)",
-        xaxis=dict(range=[0, 10], dtick=0.2),
-        yaxis=dict(range=[-2, 2]),
-        plot_bgcolor="white",
-        height=400,
-        margin=dict(l=20, r=20, t=50, b=20),
-        hovermode="x unified"
-    )
     return fig
 
 # Función para graficar registro
