@@ -126,10 +126,10 @@ def predecir_clase_ecg(signal):
         probs = torch.sigmoid(output).cpu().numpy().flatten()
         
         # Umbral de decisión 0.5
-        etiquetas_predichas = [clases[i] for i, prob in enumerate(probs) if prob > 0.5]
+        etiquetas_predichas = [classes[i] for i, prob in enumerate(probs) if prob > 0.5]
         
         # Para mostrar también el gráfico de barras
-        df_probs = pd.DataFrame({"Ritmo": clases, "Probabilidad": probs})
+        df_probs = pd.DataFrame({"Ritmo": classes, "Probabilidad": probs})
         st.bar_chart(df_probs.set_index("Ritmo"))
 
         if not etiquetas_predichas:
