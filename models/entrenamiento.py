@@ -10,15 +10,12 @@ from torch.utils.data import TensorDataset, DataLoader
 # Preparar datos
 ruta = r'C:\Users\Sergio\Documents\Academic-miscelaneous\INFOPUCP\Dimplomatura de Inteligencia Artificial\Módulo 3 (Feb-Abr)\Redes Neuronales\Trabajo final\a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0\WFDBRecords'
 X_data, y_data = construir_dataset(ruta)
-encoder = LabelEncoder()
-encoder.fit(['Atrial Fibrillation', 'Sinus Bradycardia', 'Sinus Rhythm', 'Sinus Tachycardia'])
+
+clases = ['Atrial Fibrillation', 'Sinus Bradycardia', 'Sinus Rhythm', 'Sinus Tachycardia']
+
 y_encoded = []
-for etiqueta in y_data:
-    multi_label = [0] * len(encoder.classes_)
-    for e in etiqueta.split(','):
-        if e in encoder.classes_:
-            idx = list(encoder.classes_).index(e)
-            multi_label[idx] = 1
+for etiquetas in y_data:
+    multi_label = [1 if clase in etiquetas else 0 for clase in clases]
     y_encoded.append(multi_label)
 y_encoded = np.array(y_encoded)
 
@@ -29,6 +26,8 @@ X_train, X_val, y_train, y_val = train_test_split(X_tensor, y_tensor, test_size=
 
 train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=32, shuffle=True)
 val_loader = DataLoader(TensorDataset(X_val, y_val), batch_size=32)
+
+np.save("models/label_encoder_classes.npy", clases)
 
 # Entrenar modelo
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -57,5 +56,4 @@ for epoch in range(epocas):
         total += y_batch.size(0)
     print(f"Epoch {epoch+1}/{epocas}: Accuracy {correct/total:.2f}")
 
-np.save("models/label_encoder_classes.npy", encoder.classes_)
 torch.save(model.state_dict(), "models/modelo_CNN_MLP.pt")

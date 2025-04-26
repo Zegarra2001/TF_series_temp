@@ -123,13 +123,19 @@ def predecir_clase_ecg(signal):
     signal = torch.tensor(signal, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(device)
     with torch.no_grad():
         output = modelo(signal)
-        pred_idx = output.argmax(dim=1).item()
+        probs = torch.sigmoid(output).cpu().numpy().flatten()
         
-        probs = torch.softmax(output, dim=1).cpu().numpy().flatten()
-        df_probs = pd.DataFrame({"Ritmo": classes, "Probabilidad": probs})
+        # Umbral de decisión 0.5
+        etiquetas_predichas = [clases[i] for i, prob in enumerate(probs) if prob > 0.5]
+        
+        # Para mostrar también el gráfico de barras
+        df_probs = pd.DataFrame({"Ritmo": clases, "Probabilidad": probs})
         st.bar_chart(df_probs.set_index("Ritmo"))
-        
-        return str(classes[pred_idx])
+
+        if not etiquetas_predichas:
+            return ["Sin clasificación clara"]
+        return etiquetas_predichas
+
 
 # Clasificación original desde el .hea
 def obtener_clasificacion_real(record):
@@ -240,8 +246,9 @@ with col_clase_der:
 if clasificar:
     derivada_pred = derivada if derivada != 'Todos' else 'II'
     signal, _ = extraer_senal(record, derivada_pred)
-    clase_predicha = predecir_clase_ecg(signal)
-    st.success(f"✅ Ritmo clasificado: **{clase_predicha}**")
+    clases_predichas = predecir_clase_ecg(signal)
+    st.success(f"✅ Ritmos clasificados: {', '.join(clases_predichas)}")
+
 
     etiquetas_real = obtener_clasificacion_real(record)
     st.info(f"📌 Clasificación original: **{', '.join(etiquetas_real)}**")
