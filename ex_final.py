@@ -175,15 +175,18 @@ if calcular:
         else:
             canal_elegido = canal
 
-    idx_canal = record.sig_name.index(canal_elegido)
-    record_limpio = nk.ecg_clean(record.p_signal[:, idx_canal], sampling_rate=500)
+    # Extraer exactamente los mismos 10s de señal
+    signal_raw, t = extraer_senal(record, canal_elegido)
+    record_limpio = nk.ecg_clean(signal_raw, sampling_rate=500)
     _, picos = nk.ecg_peaks(record_limpio, sampling_rate=500)
 
-    signal, t = extraer_senal(record, canal_elegido)
-    fig = graficar_plotly(signal, t, canal_elegido, nombre, picos=picos)
+    # Visualizar con picos detectados
+    fig = graficar_plotly(signal_raw, t, canal_elegido, nombre, picos=picos)
     st.plotly_chart(fig, use_container_width=True)
 
+    # Calcular frecuencia cardíaca
     frec_cardiaca = obtener_frecuenciacardiaca(picos)
+
     st.markdown(f'**Frecuencia cardíaca del canal {canal_elegido}:** `{frec_cardiaca} lpm`')
     if frec_cardiaca < 60 or frec_cardiaca > 100:
         st.error('⚠️ Frecuencia cardíaca fuera del rango normal (60–100 lpm)')
